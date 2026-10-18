@@ -1,0 +1,17 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'telegram'
+
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: '8768412442:AAFbLczFsbWpmgxKZCmsGRDFBPic_yit0E8'
+        chat_id: 346259849
+        parse_mode: 'HTML'
+        send_resolved: true

@@ -1,0 +1,40 @@
+groups:
+  - name: node-alerts
+    rules:
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"}) * 100 < 15
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Мало вільного місця на диску"
+          description: "На {{ $labels.instance }} ({{ $labels.mountpoint }}) залишилось менше 15% місця. Поточне значення: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Високе навантаження CPU"
+          description: "CPU на {{ $labels.instance }} > 80%. Поточне значення: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: TargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Таргет недоступний"
+          description: "Таргет {{ $labels.job }}/{{ $labels.instance }} недоступний вже більше 1 хвилини"
+
+  - name: test-alerts
+    rules:
+      - alert: TestTelegram
+        expr: vector(1)
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Тестовий алерт"
+          description: "Якщо бачиш це в Telegram — все працює!"
